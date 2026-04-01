@@ -37,7 +37,7 @@ async def check_live():
     while not client.is_closed():
         live = is_live()
         if live and not already_notified:
-            await channel.send("🔴 They're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
+            await channel.send("🔴 We're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
             already_notified = True
         elif not live:
             already_notified = False

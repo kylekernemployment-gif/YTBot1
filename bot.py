@@ -37,7 +37,7 @@ async def check_live():
     while not client.is_closed():
         live = is_live()
         if live and not already_notified:
-            await channel.send("🔴 We're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
+            await channel.send("🔴 They're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
             already_notified = True
         elif not live:
             already_notified = False
@@ -58,4 +58,8 @@ class Handler(BaseHTTPRequestHandler):
 
 def run_server():
     port = int(os.environ.get("PORT", 8080))
-    server = HTTPServer(("
+    server = HTTPServer(("0.0.0.0", port), Handler)
+    server.serve_forever()
+
+threading.Thread(target=run_server, daemon=True).start()
+client.run(DISCORD_TOKEN)

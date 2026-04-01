@@ -28,16 +28,20 @@ def is_live():
     }
     response = requests.get(url, params=params)
     data = response.json()
-    return len(data.get("items", [])) > 0
+    items = data.get("items", [])
+    print(f"Live check: {len(items)} stream(s) found")
+    return len(items) > 0
 
 async def check_live():
     await client.wait_until_ready()
     global already_notified
     channel = client.get_channel(CHANNEL_ID)
+    print(f"Discord channel found: {channel}")
     while not client.is_closed():
         live = is_live()
+        print(f"Is live: {live} | Already notified: {already_notified}")
         if live and not already_notified:
-            await channel.send("🔴 They're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
+            await channel.send("🔴 We're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
             already_notified = True
         elif not live:
             already_notified = False

@@ -1,3 +1,37 @@
+import discord
+import requests
+import asyncio
+import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
+CHANNEL_ID = int(os.environ['CHANNEL_ID'])
+YOUTUBE_API_KEY = os.environ['YOUTUBE_API_KEY']
+YOUTUBE_CHANNEL_ID = os.environ['YOUTUBE_CHANNEL_ID']
+
+CHECK_INTERVAL = 60
+
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+
+already_notified = False
+
+def is_live():
+    url = "https://www.googleapis.com/youtube/v3/search"
+    params = {
+        "part": "snippet",
+        "channelId": YOUTUBE_CHANNEL_ID,
+        "type": "video",
+        "eventType": "live",
+        "key": YOUTUBE_API_KEY
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    items = data.get("items", [])
+    print(f"Live check: {len(items)} stream(s) found")
+    return len(items) > 0
+
 async def check_live():
     await client.wait_until_ready()
     global already_notified
@@ -35,9 +69,6 @@ def run_server():
     port = int(os.environ.get("PORT", 8080))
     server = HTTPServer(("0.0.0.0", port), Handler)
     server.serve_forever()
-
-threading.Thread(target=run_server, daemon=True).start()
-client.run(DISCORD_TOKEN)
 
 threading.Thread(target=run_server, daemon=True).start()
 client.run(DISCORD_TOKEN)

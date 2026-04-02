@@ -17,7 +17,7 @@ client = discord.Client(intents=intents)
 
 already_notified = False
 
-def is_live():
+def get_live_info():
     url = "https://www.googleapis.com/youtube/v3/search"
     params = {
         "part": "snippet",
@@ -30,7 +30,14 @@ def is_live():
     data = response.json()
     items = data.get("items", [])
     print(f"Live check: {len(items)} stream(s) found")
-    return len(items) > 0
+    if items:
+        item = items[0]
+        video_id = item["id"]["videoId"]
+        title = item["snippet"]["title"]
+        thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+        return {"title": title, "thumbnail": thumbnail, "url": video_url}
+    return None
 
 async def check_live():
     await client.wait_until_ready()
@@ -38,12 +45,20 @@ async def check_live():
     channel = client.get_channel(CHANNEL_ID)
     print(f"Discord channel found: {channel}")
     while not client.is_closed():
-        live = is_live()
-        print(f"Is live: {live} | Already notified: {already_notified}")
-        if live and not already_notified:
-            await channel.send("🔴 We're live on YouTube! Go watch: https://www.youtube.com/@keylkrne")
+        info = get_live_info()
+        print(f"Is live: {info is not None} | Already notified: {already_notified}")
+        if info and not already_notified:
+            embed = discord.Embed(
+                title=info["title"],
+                url=info["url"],
+                description="🔴 Players Choice is LIVE! Click to watch.",
+                color=0xFF0000
+            )
+            embed.set_image(url=info["thumbnail"])
+            embed.set_footer(text="Click the title to watch!")
+            await channel.send(embed=embed)
             already_notified = True
-        elif not live:
+        elif not info:
             if already_notified:
                 print("Stream ended, cooling down...")
                 already_notified = False

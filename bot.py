@@ -15,6 +15,9 @@ CHECK_INTERVAL = 60
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
+if already_notified:
+    print("Stream ended, cooling down...")
+    await asyncio.sleep(300)
 already_notified = False
 
 def is_live():

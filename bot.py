@@ -51,7 +51,7 @@ async def check_live():
             embed = discord.Embed(
                 title=info["title"],
                 url=info["url"],
-                description="🔴 Players Choice is LIVE! Click to watch.",
+                description="🔴 @everyone Players Choice is LIVE! Click to watch.",
                 color=0xFF0000
             )
             embed.set_image(url=info["thumbnail"])
